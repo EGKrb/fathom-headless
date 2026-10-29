@@ -1,0 +1,15 @@
+// Smoke test: start the target, trace 2000 instructions, export them (Fathom's TraceExport)
+// and check that the bundled plugins answer.
+settingset Events, SystemBreakpoint, 0
+settingset Events, TlsCallbacks, 0
+settingset Events, EntryBreakpoint, 1
+init "%TARGET%"
+
+StartTraceRecording "%OUT%\trace.trace%BITS%"
+TraceIntoConditional 0, .2000
+StopTraceRecording
+
+TraceExport "%OUT%\trace.trace%BITS%", "%OUT%\trace.json"
+TraceExport "%OUT%\trace.trace%BITS%", "%OUT%\trace.log", tenet
+pybridge.status
+log "[template] done"

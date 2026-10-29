@@ -1,0 +1,39 @@
+name: smoke
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  smoke:
+    runs-on: windows-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - msvc: x64
+            arch: x64
+          - msvc: x86
+            arch: x32
+    steps:
+      - uses: actions/checkout@v4
+      - name: Download the latest Fathom release
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release download --repo EGKrb/Fathom --pattern "Fathom_*.zip" --dir fathom
+          $zip = Get-ChildItem fathom -Filter 'Fathom_*.zip' | Where-Object Name -notlike '*_symbols.zip' | Select-Object -First 1
+          Expand-Archive $zip.FullName fathom\unpacked
+      - name: Build the headless package
+        shell: pwsh
+        run: .\tools\make-headless.ps1 -Source fathom\unpacked\release -OutDir dist
+      - uses: ilammy/msvc-dev-cmd@v1
+        with:
+          arch: ${{ matrix.msvc }}
+      - name: Build the smoke-test target
+        run: cl /nologo /O1 /Fe:target.exe tests\target.c
+      - name: Smoke test
+        shell: pwsh
+        run: .\tests\smoke.ps1 -Package dist\fathom-headless -Target .\target.exe -Arch ${{ matrix.arch }}
