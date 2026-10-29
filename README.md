@@ -146,11 +146,12 @@ The package is assembled from a Fathom build by [`tools/make-headless.ps1`](tool
 .\tools\make-headless.ps1 -Source C:\src\Fathom\release\release -Version 1.0.0 `
     -ExtraCmdsX64 C:\src\Fathom\extracmds\build-x64-noqt\ExtraCmds.dp64
 
-# or from an extracted Fathom_<version>.zip (the 64-bit ExtraCmds is then left out)
-.\tools\make-headless.ps1 -Source C:\Downloads\Fathom_1.1.0\release
+# or from an extracted Fathom_<version>.zip: -Source is its "release" folder, the one that holds x64\ and x32\
+# (the 64-bit ExtraCmds is then left out)
+.\tools\make-headless.ps1 -Source C:\Downloads\Fathom\release
 ```
 
-The commands-only ExtraCmds is built in Fathom with `cmake -S extracmds -B extracmds\build-x64-noqt -DCMAKE_DISABLE_FIND_PACKAGE_Qt5=ON ...`.
+Microsoft WinDbg (`hvkdfusion\windbg64`) is never copied into the package: it is not redistributable, and `hvkdfusion.py setup` installs it. The commands-only ExtraCmds is built in Fathom with `cmake -S extracmds -B extracmds\build-x64-noqt -DCMAKE_DISABLE_FIND_PACKAGE_Qt5=ON ...`.
 
 ## Tests
 

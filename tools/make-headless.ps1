@@ -91,6 +91,16 @@ foreach ($name in 'pybridge', 'hvkdfusion', 'tools', 'licenses') {
     $dir = Join-Path $Source $name
     if (Test-Path $dir) { Copy-Item -Recurse $dir $stage }
 }
+# WinDbg is Microsoft software that may not be redistributed: HvKdFusion installs it with `setup`
+$windbg = Join-Path $stage 'hvkdfusion\windbg64'
+if (Test-Path $windbg) {
+    Remove-Item -Recurse -Force $windbg
+    Write-Warning 'hvkdfusion\windbg64 (Microsoft WinDbg) was left out: it is not redistributable'
+}
+foreach ($name in 'config.json', '__pycache__') {
+    $item = Join-Path $stage "hvkdfusion\$name"
+    if (Test-Path $item) { Remove-Item -Recurse -Force $item }
+}
 $commit = Join-Path (Split-Path $Source) 'commithash.txt'
 if (Test-Path $commit) { Copy-Item $commit (Join-Path $stage 'fathom-commithash.txt') }
 

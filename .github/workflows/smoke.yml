@@ -28,7 +28,11 @@ jobs:
           Expand-Archive $zip.FullName fathom\unpacked
       - name: Build the headless package
         shell: pwsh
-        run: .\tools\make-headless.ps1 -Source fathom\unpacked\release -OutDir dist
+        run: |
+          # The release folder is the one holding x64\headless.exe, wherever it sits in the zip
+          $engine = Get-ChildItem fathom\unpacked -Recurse -Filter headless.exe | Where-Object { $_.Directory.Name -eq 'x64' } | Select-Object -First 1
+          if (-not $engine) { throw 'x64\headless.exe not found in the Fathom release' }
+          .\tools\make-headless.ps1 -Source $engine.Directory.Parent.FullName -OutDir dist
       - uses: ilammy/msvc-dev-cmd@v1
         with:
           arch: ${{ matrix.msvc }}
