@@ -1,4 +1,4 @@
-// Records an execution trace from the entry point and exports it to JSON, CSV and Tenet.
+// Records an execution trace from the entry point and exports it to JSON, CSV, Tenet and .ftt (Time Travel).
 // Needs an x64dbg build with the TraceExport command.
 // Change the stop condition (0 = never) and the maximum count (.N = decimal) as needed,
 // for example: TraceIntoConditional "cip == kernelbase.ExitProcess", .1000000
@@ -17,4 +17,7 @@ TraceExport "%OUT%\trace.trace%BITS%", "%OUT%\trace.json"
 TraceExport "%OUT%\trace.trace%BITS%", "%OUT%\trace.csv"
 // Tenet text trace for IDA Pro; on x64, a Frinet one can be added with: TraceExport "...", "%OUT%\trace.tenet", frinet
 TraceExport "%OUT%\trace.trace%BITS%", "%OUT%\trace.log", tenet
+// Indexed, compressed trace for the tt.* commands (ExtraCmds) and the Time Travel tab of Fathom;
+// regs=all adds the x87 / SSE / AVX registers
+TraceExport "%OUT%\trace.trace%BITS%", "%OUT%\trace.ftt", ftt
 log "[template] done"

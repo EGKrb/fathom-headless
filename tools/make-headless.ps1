@@ -97,6 +97,16 @@ if (Test-Path $windbg) {
     Remove-Item -Recurse -Force $windbg
     Write-Warning 'hvkdfusion\windbg64 (Microsoft WinDbg) was left out: it is not redistributable'
 }
+# Not needed to debug from the command line, and 50 MB together: ntoseye (Linux build run through
+# WSL) and the Dokany installer (kernel driver, only to mount memory as a drive). `setup` uses
+# installed copies, or says where to get them.
+foreach ($name in 'ntoseye', 'dokany') {
+    $dir = Join-Path $stage "hvkdfusion\$name"
+    if (Test-Path $dir) {
+        Remove-Item -Recurse -Force $dir
+        Write-Host "hvkdfusion\${name}: left out (full Fathom release only)"
+    }
+}
 foreach ($name in 'config.json', '__pycache__') {
     $item = Join-Path $stage "hvkdfusion\$name"
     if (Test-Path $item) { Remove-Item -Recurse -Force $item }

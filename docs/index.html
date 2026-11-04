@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Fathom headless — command-line debugger</title>
-<meta name="description" content="Fathom headless: headless.exe and the x64dbg-based Fathom debug engine for x64 and x32, without the GUI. Scripts, stdin, PowerShell templates, Python, TraceExport to JSON/CSV/Tenet/Frinet.">
+<meta name="description" content="Fathom headless: headless.exe and the x64dbg-based Fathom debug engine for x64 and x32, without the GUI. Scripts, stdin, PowerShell templates, Python, TraceExport to JSON/CSV/Tenet/Frinet/.ftt, Time Travel commands.">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%2315803d'/%3E%3Cpath d='M8 11l6 5-6 5' fill='none' stroke='white' stroke-width='2.6' stroke-linecap='round' stroke-linejoin='round'/%3E%3Cpath d='M16 22h8' stroke='white' stroke-width='2.6' stroke-linecap='round'/%3E%3C/svg%3E">
 <style>
 :root {
@@ -93,7 +93,7 @@ footer .wrap { display: flex; justify-content: space-between; gap: 16px; flex-wr
 <main>
   <div class="wrap hero">
     <h1>The Fathom debugger,<br>without the window.</h1>
-    <p class="lead"><code>headless.exe</code> and the full x64dbg-based engine of <a href="https://github.com/EGKrb/Fathom">Fathom</a> for x64 and x32 — no Qt GUI, 13 MB. Debug Windows programs from scripts, standard input, PowerShell templates or Python: on a server, in an analysis VM, in CI.</p>
+    <p class="lead"><code>headless.exe</code> and the full x64dbg-based engine of <a href="https://github.com/EGKrb/Fathom">Fathom</a> for x64 and x32 — no Qt GUI, 15 MB. Debug Windows programs from scripts, standard input, PowerShell templates or Python: on a server, in an analysis VM, in CI.</p>
     <div class="buttons">
       <a class="btn primary" href="https://github.com/EGKrb/fathom-headless/releases/latest">Download</a>
       <a class="btn" href="https://github.com/EGKrb/fathom-headless">View on GitHub</a>
@@ -106,8 +106,8 @@ Debugging: C:\samples\target.exe
 INT3 breakpoint "entry breakpoint" at &lt;target.OptionalHeader.AddressOfEntryPoint&gt;
 Started trace recording to file: C:\work\trace.trace64
 <span class="p">Trace finished after 2000 steps!</span>
-<span class="p">Exported 2000 instructions to C:\work\trace.json</span>
-<span class="p">Exported 2000 instructions to C:\work\trace.log</span></pre>
+<span class="p">Exported 2000 instructions (1 threads, 0 context switches) to C:\work\trace.json</span>
+<span class="p">Exported 2000 instructions (1 threads, 0 context switches) to C:\work\trace.log</span></pre>
   </div>
 
   <section>
@@ -116,7 +116,7 @@ Started trace recording to file: C:\work\trace.trace64
       <p class="sub">The same engine build as Fathom, with everything that works without a GUI.</p>
       <div class="grid">
         <div class="card"><h3>x64 and x32 engine</h3><p><code>headless.exe</code>, <code>x64dbg.dll</code> / <code>x32dbg.dll</code>, TitanEngine, GleeBug — every x64dbg command, script and expression.</p></div>
-        <div class="card"><h3>TraceExport</h3><p>Record execution traces and export them to <strong>JSON</strong>, <strong>CSV</strong>, or <strong>Tenet / Frinet</strong> to explore them in IDA Pro.</p></div>
+        <div class="card"><h3>TraceExport</h3><p>Record execution traces and export them to <strong>JSON</strong>, <strong>CSV</strong>, or <strong>Tenet / Frinet</strong> to explore them in IDA Pro, or <strong>.ftt</strong> to walk them backward with the <code>tt.*</code> commands.</p></div>
         <div class="card"><h3>Plugins</h3><p>pybridge (Python), ExtraCmds, ScyllaHide, xAnalyzer, plus PE-sieve and the HvKdFusion / wineye scripts.</p></div>
         <div class="card"><h3>Templates</h3><p>Twelve ready-made scripts — API logging, unpacking dumps, pattern search, traces — and a launcher with isolated settings.</p></div>
       </div>
@@ -128,7 +128,7 @@ Started trace recording to file: C:\work\trace.trace64
       <h2>Quick start</h2>
       <p class="sub">Windows 10 / 11. No installer: extract and run.</p>
       <ol class="steps">
-        <li>Download <a href="https://github.com/EGKrb/fathom-headless/releases/latest"><code>fathom-headless_1.0.0.zip</code></a>.</li>
+        <li>Download <a href="https://github.com/EGKrb/fathom-headless/releases/latest"><code>fathom-headless_1.1.0.zip</code></a>.</li>
         <li>Extract it into a folder you can write to, e.g. <code>C:\Tools\fathom-headless</code>.</li>
         <li>Run a template, or your own script:</li>
       </ol>
@@ -155,7 +155,8 @@ StartTraceRecording "C:\work\trace.trace64"
 TraceIntoConditional 0, .2000
 StopTraceRecording
 TraceExport "C:\work\trace.trace64", "C:\work\trace.json"
-TraceExport "C:\work\trace.trace64", "C:\work\trace.log", tenet</pre>
+TraceExport "C:\work\trace.trace64", "C:\work\trace.log", tenet
+TraceExport "C:\work\trace.trace64", "C:\work\trace.ftt", ftt</pre>
     </div>
   </section>
 
@@ -168,7 +169,7 @@ TraceExport "C:\work\trace.trace64", "C:\work\trace.log", tenet</pre>
           <thead><tr><th>Template</th><th>Purpose</th></tr></thead>
           <tbody>
             <tr><td><code>api-log</code>, <code>hook-apis-extended</code></td><td>log API calls with their arguments, without pausing</td></tr>
-            <tr><td><code>trace-export</code>, <code>run-trace</code></td><td>record a trace from the entry point and export JSON / CSV / Tenet</td></tr>
+            <tr><td><code>trace-export</code>, <code>run-trace</code></td><td>record a trace from the entry point and export JSON / CSV / Tenet / .ftt</td></tr>
             <tr><td><code>hook-unpack</code>, <code>unpack-dump</code></td><td>follow runtime unpacking and dump the region flipped to executable</td></tr>
             <tr><td><code>dump-module</code>, <code>dump-at-delay</code></td><td>save the main module and a full minidump</td></tr>
             <tr><td><code>break-on-file</code></td><td>conditional breakpoint on a file open, then automatic actions</td></tr>

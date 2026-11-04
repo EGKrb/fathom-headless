@@ -32,4 +32,8 @@ $count = $json.instructions.Count
 if ($count -lt 100) { throw "trace.json has only $count instructions" }
 $lines = (Get-Content (Join-Path $out 'trace.log')).Count
 if ($lines -ne $count) { throw "trace.log has $lines lines, trace.json $count instructions" }
-"smoke $Arch OK: $count instructions exported (JSON + Tenet), output in $out"
+# .ftt (Time Travel): header "FTT1", index footer "FTTX" in the last 16 bytes
+$ftt = [IO.File]::ReadAllBytes((Join-Path $out 'trace.ftt'))
+$ascii = [Text.Encoding]::ASCII
+if ($ftt.Length -lt 32 -or $ascii.GetString($ftt, 0, 4) -ne 'FTT1' -or $ascii.GetString($ftt, $ftt.Length - 8, 4) -ne 'FTTX') { throw 'trace.ftt is not a .ftt file' }
+"smoke $Arch OK: $count instructions exported (JSON + Tenet + .ftt), output in $out"

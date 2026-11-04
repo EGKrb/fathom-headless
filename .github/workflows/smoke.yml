@@ -23,8 +23,9 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          gh release download --repo EGKrb/Fathom --pattern "Fathom_*.zip" --dir fathom
-          $zip = Get-ChildItem fathom -Filter 'Fathom_*.zip' | Where-Object Name -notlike '*_symbols.zip' | Select-Object -First 1
+          # Fathom_<version>.zip only, not the symbols or sources archives
+          gh release download --repo EGKrb/Fathom --pattern "Fathom_*[0-9].zip" --dir fathom
+          $zip = Get-ChildItem fathom -Filter 'Fathom_*.zip' | Select-Object -First 1
           Expand-Archive $zip.FullName fathom\unpacked
       - name: Build the headless package
         shell: pwsh

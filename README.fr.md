@@ -10,18 +10,19 @@
 PS> .\x64\headless.exe -cf trace.txt
 ...
 Trace finished after 2000 steps!
-Exported 2000 instructions to C:\work\trace.json
-Exported 2000 instructions to C:\work\trace.log
+Exported 2000 instructions (1 threads, 0 context switches) to C:\work\trace.json
+Exported 2000 instructions (1 threads, 0 context switches) to C:\work\trace.log
 ```
 
 | | Fathom | Fathom headless |
 |---|---|---|
 | Moteur de débogage, commandes, scripts, expressions | ✅ | ✅ (même build) |
-| `TraceExport` → JSON / CSV / Tenet / Frinet | ✅ | ✅ |
+| `TraceExport` → JSON / CSV / Tenet / Frinet / `.ftt` (Time Travel) | ✅ | ✅ |
+| Time Travel : commandes `tt.*` (positionnement, retour arrière, recherche, mémoire à un instant) | ✅ | ✅ (commandes ; l'onglet demande l'interface) |
 | Plugins : pybridge, ExtraCmds, ScyllaHide, xAnalyzer | ✅ | ✅ (ExtraCmds x64 sans l'onglet graphique) |
 | Modèles de scripts et lanceur | ✅ | ✅ |
 | Interface Qt (`x64dbg.exe`, `x32dbg.exe`), visionneuse de minidumps | ✅ | — |
-| Taille du téléchargement | 37 Mo | **13 Mo** |
+| Taille du téléchargement | 72 Mo | **15 Mo** |
 
 ---
 
@@ -53,6 +54,10 @@ TraceIntoConditional 0, .2000
 StopTraceRecording
 TraceExport "C:\travail\trace.trace64", "C:\travail\trace.json"
 TraceExport "C:\travail\trace.trace64", "C:\travail\trace.log", tenet
+TraceExport "C:\travail\trace.trace64", "C:\travail\trace.ftt", ftt
+tt.open "C:\travail\trace.ftt"
+tt.seek .1500
+tt.regs
 ```
 
 ```powershell
@@ -91,7 +96,7 @@ Le lanceur remplace `%TARGET%`, `%MODULE%`, `%OUT%` et `%BITS%`, lance `headless
 |---|---|
 | `api-log` | journalise les appels d'API avec leurs arguments, sans pause |
 | `hook-apis-extended` | `api-log` élargi (contrôle processus/threads, loader, mémoire, I/O, registre, crypto) |
-| `trace-export` | trace jusqu'à 50 000 instructions depuis le point d'entrée (ou jusqu'à la fin du processus) et exporte en JSON, CSV et Tenet |
+| `trace-export` | trace jusqu'à 50 000 instructions depuis le point d'entrée (ou jusqu'à la fin du processus) et exporte en JSON, CSV, Tenet et `.ftt` |
 | `run-trace` | enregistre jusqu'à 100 000 instructions et exporte en JSON et CSV |
 | `dump-module` | sauvegarde le module principal (`.mem`) et un minidump complet au point d'entrée |
 | `dump-at-delay` | laisse la cible s'exécuter puis dump le module principal et un minidump (packers qui déballent au démarrage) |
@@ -133,7 +138,7 @@ Voir [pybridge](https://github.com/EGKrb/pybridge) pour toute l'API Python.
 
 ## Remarques
 
-- **ExtraCmds (x64)** est la version sans interface : `.init`, `.save`, `scylla_hide.*`, `hvkd*`, `wineye` fonctionnent ; l'onglet graphique HvKdFusion de Fathom demande l'interface.
+- **ExtraCmds (x64)** est la version sans interface : `.init`, `.save`, `scylla_hide.*`, `hvkd*`, `wineye` et les commandes Time Travel `tt.*` fonctionnent ; les onglets HvKdFusion et Time Travel de Fathom demandent l'interface.
 - **Antivirus :** un débogueur écrit dans la mémoire du processus qu'il débogue, ce que la surveillance comportementale peut prendre pour une injection. Pendant les tests, Microsoft Defender a signalé `Behavior:Win32/SuspLummaInj.A` quand le moteur 32 bits déboguait un binaire Windows 32 bits (`C:\Windows\SysWOW64\whoami.exe`) : il a tué le processus débogué et mis `x32\headless.exe` en quarantaine. Le débogage d'autres programmes (et des binaires système 64 bits) n'a pas été affecté. Pour l'analyse de malware, travaillez dans une VM et ajoutez-y une exclusion pour le dossier du paquet.
 - À utiliser sur des programmes que vous êtes autorisé à analyser (vos logiciels, échantillons de malware en bac à sable, challenges CTF...).
 
@@ -143,7 +148,7 @@ Le paquet est assemblé à partir d'un build de Fathom par [`tools/make-headless
 
 ```powershell
 # depuis le dossier release d'un build Fathom (tools\make-release.ps1 dans Fathom), avec un ExtraCmds x64 sans Qt
-.\tools\make-headless.ps1 -Source C:\src\Fathom\release\release -Version 1.0.0 `
+.\tools\make-headless.ps1 -Source C:\src\Fathom\release\release -Version 1.1.0 `
     -ExtraCmdsX64 C:\src\Fathom\extracmds\build-x64-noqt\ExtraCmds.dp64
 
 # ou depuis un Fathom_<version>.zip extrait : -Source est son dossier « release », celui qui contient x64\ et x32\
@@ -151,11 +156,11 @@ Le paquet est assemblé à partir d'un build de Fathom par [`tools/make-headless
 .\tools\make-headless.ps1 -Source C:\Downloads\Fathom\release
 ```
 
-WinDbg de Microsoft (`hvkdfusion\windbg64`) n'est jamais copié dans le paquet : il n'est pas redistribuable, et `hvkdfusion.py setup` l'installe. L'ExtraCmds sans Qt se compile dans Fathom avec `cmake -S extracmds -B extracmds\build-x64-noqt -DCMAKE_DISABLE_FIND_PACKAGE_Qt5=ON ...`.
+WinDbg de Microsoft (`hvkdfusion\windbg64`) n'est jamais copié dans le paquet : il n'est pas redistribuable, et `hvkdfusion.py setup` l'installe. ntoseye et l'installateur Dokany (`hvkdfusion\ntoseye`, `hvkdfusion\dokany`) sont aussi retirés : ils ne servent qu'au débogage noyau via WSL et au montage de la mémoire comme lecteur, et sont fournis avec la release complète de Fathom ; MemProcFS et hvlib (`hvkdfusion\memprocfs`, `hvkdfusion\hvlib`), utilisés par wineye, sont gardés. L'ExtraCmds sans Qt se compile dans Fathom avec `cmake -S extracmds -B extracmds\build-x64-noqt -DCMAKE_DISABLE_FIND_PACKAGE_Qt5=ON ...`.
 
 ## Tests
 
-[`tests/smoke.ps1`](tests/smoke.ps1) exécute [`tests/smoke.txt`](tests/smoke.txt) sur [`tests/target.c`](tests/target.c) : démarrage, trace de 2 000 instructions, export JSON et Tenet, vérification des plugins. GitHub Actions construit le paquet à partir de la dernière release de Fathom et le teste en x64 et x32 à chaque push.
+[`tests/smoke.ps1`](tests/smoke.ps1) exécute [`tests/smoke.txt`](tests/smoke.txt) sur [`tests/target.c`](tests/target.c) : démarrage, trace de 2 000 instructions, export JSON, Tenet et `.ftt`, vérification des plugins. GitHub Actions construit le paquet à partir de la dernière release de Fathom et le teste en x64 et x32 à chaque push.
 
 ```powershell
 .\tests\smoke.ps1 -Package dist\fathom-headless -Target .\target64.exe -Arch x64

@@ -1,5 +1,20 @@
 # Changelog
 
+## [1.1.0] - 2026-11-04
+
+Built from [Fathom](https://github.com/EGKrb/Fathom) 1.2.0 (commit `a4c99038`).
+
+- **Time Travel**: `TraceExport` writes and reads the `.ftt` format (indexed,
+  compressed, one timeline per thread, extended registers with `regs=`), and
+  ExtraCmds brings the `tt.*` commands (`tt.open`, `tt.seek`, `tt.prev`,
+  `tt.regs`, `tt.mem`, `tt.find`, `tt.write`...) on x64 and x32.
+- **wineye 1.2.1**: 32-bit code of WoW64 processes unwound, crash-dump
+  debugger, MemProcFS and hvlib bundled in `hvkdfusion\` (ntoseye and the
+  Dokany installer stay in the full Fathom release).
+- `trace-export` template and smoke test: `.ftt` export too.
+- CI: downloads only `Fathom_<version>.zip` from the Fathom release (not the
+  symbols and sources archives).
+
 ## [1.0.0] - 2026-10-29
 
 First release of Fathom headless, the command-line edition of
@@ -16,4 +31,5 @@ First release of Fathom headless, the command-line edition of
 - `tools/make-headless.ps1` builds the package from a Fathom release;
   `tests/smoke.ps1` checks it.
 
+[1.1.0]: https://github.com/EGKrb/fathom-headless/releases/tag/v1.1.0
 [1.0.0]: https://github.com/EGKrb/fathom-headless/releases/tag/v1.0.0
