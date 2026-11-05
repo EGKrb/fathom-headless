@@ -19,6 +19,7 @@ Exported 2000 instructions (1 threads, 0 context switches) to C:\work\trace.log
 | Moteur de débogage, commandes, scripts, expressions | ✅ | ✅ (même build) |
 | `TraceExport` → JSON / CSV / Tenet / Frinet / `.ftt` (Time Travel) | ✅ | ✅ |
 | Time Travel : commandes `tt.*` (positionnement, retour arrière, recherche, mémoire à un instant) | ✅ | ✅ (commandes ; l'onglet demande l'interface) |
+| Enregistrement des traces environ 2,5 fois plus rapide, ordre des threads d'une trace (exact / approximatif, `tt.info`, membre JSON `cpu`) | ✅ | ✅ |
 | Plugins : pybridge, ExtraCmds, ScyllaHide, xAnalyzer | ✅ | ✅ (ExtraCmds x64 sans l'onglet graphique) |
 | Modèles de scripts et lanceur | ✅ | ✅ |
 | Interface Qt (`x64dbg.exe`, `x32dbg.exe`), visionneuse de minidumps | ✅ | — |
@@ -148,7 +149,7 @@ Le paquet est assemblé à partir d'un build de Fathom par [`tools/make-headless
 
 ```powershell
 # depuis le dossier release d'un build Fathom (tools\make-release.ps1 dans Fathom), avec un ExtraCmds x64 sans Qt
-.\tools\make-headless.ps1 -Source C:\src\Fathom\release\release -Version 1.1.0 `
+.\tools\make-headless.ps1 -Source C:\src\Fathom\release\release -Version 1.2.0 `
     -ExtraCmdsX64 C:\src\Fathom\extracmds\build-x64-noqt\ExtraCmds.dp64
 
 # ou depuis un Fathom_<version>.zip extrait : -Source est son dossier « release », celui qui contient x64\ et x32\

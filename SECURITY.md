@@ -6,8 +6,9 @@ Fixes go into the latest release only. Each Fathom headless release is built fro
 
 | Version | Built from | Supported |
 | ------- | ---------- | --------- |
-| 1.1.x   | Fathom 1.2.0 | ✅ |
-| 1.0.x   | Fathom 1.1.0 | ❌ (update to 1.1.x) |
+| 1.2.x   | Fathom 1.3.0 | ✅ |
+| 1.1.x   | Fathom 1.2.0 | ❌ (update to 1.2.x) |
+| 1.0.x   | Fathom 1.1.0 | ❌ (update to 1.2.x) |
 
 ## Scope and intended use
 

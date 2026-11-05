@@ -19,6 +19,7 @@ Exported 2000 instructions (1 threads, 0 context switches) to C:\work\trace.log
 | Debug engine, commands, scripts, expressions | ✅ | ✅ (same build) |
 | `TraceExport` → JSON / CSV / Tenet / Frinet / `.ftt` (Time Travel) | ✅ | ✅ |
 | Time Travel: `tt.*` commands (seek, step back, find, memory at an instant) | ✅ | ✅ (commands; the tab needs the GUI) |
+| Trace recording about 2.5x faster, thread order of a trace (exact / approximate, `tt.info`, JSON `cpu`) | ✅ | ✅ |
 | Plugins: pybridge, ExtraCmds, ScyllaHide, xAnalyzer | ✅ | ✅ (ExtraCmds x64 without the GUI tab) |
 | Script templates and launcher | ✅ | ✅ |
 | Qt GUI (`x64dbg.exe`, `x32dbg.exe`), minidump viewer | ✅ | — |
@@ -148,7 +149,7 @@ The package is assembled from a Fathom build by [`tools/make-headless.ps1`](tool
 
 ```powershell
 # from the release folder of a Fathom build (tools\make-release.ps1 in Fathom), with a commands-only ExtraCmds x64
-.\tools\make-headless.ps1 -Source C:\src\Fathom\release\release -Version 1.1.0 `
+.\tools\make-headless.ps1 -Source C:\src\Fathom\release\release -Version 1.2.0 `
     -ExtraCmdsX64 C:\src\Fathom\extracmds\build-x64-noqt\ExtraCmds.dp64
 
 # or from an extracted Fathom_<version>.zip: -Source is its "release" folder, the one that holds x64\ and x32\
