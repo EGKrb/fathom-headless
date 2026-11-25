@@ -15,7 +15,10 @@ param(
     [ValidateSet('x64', 'x32')]
     [string] $Arch = 'x64',
 
-    [int] $TimeoutSeconds = 180
+    [int] $TimeoutSeconds = 180,
+
+    # also run the emulator (tests\smoke-emu.txt): needs ExtraCmds and Python with the emulator's packages
+    [switch] $Emulator
 )
 
 $ErrorActionPreference = 'Stop'
@@ -37,3 +40,12 @@ $ftt = [IO.File]::ReadAllBytes((Join-Path $out 'trace.ftt'))
 $ascii = [Text.Encoding]::ASCII
 if ($ftt.Length -lt 32 -or $ascii.GetString($ftt, 0, 4) -ne 'FTT1' -or $ascii.GetString($ftt, $ftt.Length - 8, 4) -ne 'FTTX') { throw 'trace.ftt is not a .ftt file' }
 "smoke $Arch OK: $count instructions exported (JSON + Tenet + .ftt), output in $out"
+if ($Emulator) {
+    if ($log -notmatch '\[pluginload\] ExtraCmds') { Write-Warning "emulator: ExtraCmds is not in the $Arch package, skipped"; return }
+    $emu = Join-Path ([IO.Path]::GetTempPath()) ("fathom-headless-emu-$Arch-" + [Guid]::NewGuid().ToString('N').Substring(0, 8))
+    & (Join-Path $Package 'run-headless.ps1') -Template (Join-Path $PSScriptRoot 'smoke-emu.txt') -Target $Target -Arch $Arch -OutDir $emu -TimeoutSeconds $TimeoutSeconds
+    $log = Get-Content -Raw (Join-Path $emu 'headless.log')
+    if ($log -notmatch '\[emu\] lstrlenA 5\b') { throw "emu.call failed, see $emu\headless.log" }
+    if ($log -notmatch '\[emu\] exit (\d+)') { throw "emu.run did not run the target to its exit, see $emu\headless.log" }
+    "smoke $Arch emulator OK: lstrlenA(hello) = 5 in the emulator, the target ran to its exit (code $($Matches[1]))"
+}

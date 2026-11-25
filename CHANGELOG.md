@@ -1,5 +1,21 @@
 # Changelog
 
+## [1.3.0] - 2026-11-25
+
+Built from [Fathom](https://github.com/EGKrb/Fathom) 1.9.0 (commit `4965e46b`).
+
+- **Emulator**: the package ships Fathom's emulator (`emulator\`, dumpulator):
+  the `emu.*` commands of ExtraCmds call a function of the debuggee
+  (`emu.call`) or run its thread on (`emu.run`) from a minidump of its state,
+  the debuggee not moving; whole programs run with their threads, child
+  processes, windows (their images saved), simulated network, registry and
+  files, GDI+, OpenGL and Direct3D 9 to 12 (shaders of every stage, ray
+  tracing, mesh shaders, work graphs). Needs Python 3.9+ (`emu.setup`).
+- Template `emulate-program`: runs the target to its exit in the emulator.
+- Tracing (Fathom 1.4): `TraceSetSkip` (calls run untraced) and
+  `TraceSetThreads all` (every thread recorded).
+- Tests: `tests/smoke-emu.txt` (`smoke.ps1 -Emulator`), run by the CI.
+
 ## [1.2.0] - 2026-11-05
 
 Built from [Fathom](https://github.com/EGKrb/Fathom) 1.3.0 (commit `b62a819d`).
@@ -44,6 +60,7 @@ First release of Fathom headless, the command-line edition of
 - `tools/make-headless.ps1` builds the package from a Fathom release;
   `tests/smoke.ps1` checks it.
 
+[1.3.0]: https://github.com/EGKrb/fathom-headless/releases/tag/v1.3.0
 [1.2.0]: https://github.com/EGKrb/fathom-headless/releases/tag/v1.2.0
 [1.1.0]: https://github.com/EGKrb/fathom-headless/releases/tag/v1.1.0
 [1.0.0]: https://github.com/EGKrb/fathom-headless/releases/tag/v1.0.0

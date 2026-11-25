@@ -87,10 +87,13 @@ foreach ($name in 'errordb.txt', 'exceptiondb.txt', 'mnemdb.json', 'ntstatusdb.t
     $file = Join-Path $Source $name
     if (Test-Path $file) { Copy-Item $file $stage }
 }
-foreach ($name in 'pybridge', 'hvkdfusion', 'tools', 'licenses') {
+foreach ($name in 'pybridge', 'hvkdfusion', 'emulator', 'tools', 'licenses') {
     $dir = Join-Path $Source $name
     if (Test-Path $dir) { Copy-Item -Recurse $dir $stage }
 }
+# The emulator of the emu.* commands (dumpulator, in Python): without its bytecode caches
+Get-ChildItem (Join-Path $stage 'emulator') -Recurse -Directory -Filter '__pycache__' -ErrorAction SilentlyContinue |
+    Remove-Item -Recurse -Force
 # WinDbg is Microsoft software that may not be redistributed: HvKdFusion installs it with `setup`
 $windbg = Join-Path $stage 'hvkdfusion\windbg64'
 if (Test-Path $windbg) {

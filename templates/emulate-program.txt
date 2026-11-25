@@ -1,0 +1,17 @@
+// Runs the target in Fathom's emulator (dumpulator), from its entry point to its exit: past the entry point the
+// program does not run natively. Its threads, child processes, windows (drawn: emu.screenshots saves their
+// images, paths in the log), network (simulated), registry and files (read from the host, written in the
+// emulator only) are emulated; the summary at the end of the log names what the emulator lacks.
+//
+// Needs Python 3.9 or later with the emulator's packages: `emu.setup` installs them (pip), or
+// `pip install -r emulator\requirements.txt`.
+
+settingset Events, SystemBreakpoint, 0
+settingset Events, TlsCallbacks, 0
+settingset Events, EntryBreakpoint, 1
+init "%TARGET%"
+
+emu.screenshots on
+emu.run
+log "[template] emulated to the end: exit code {d:$result2}"
+log "[template] done"

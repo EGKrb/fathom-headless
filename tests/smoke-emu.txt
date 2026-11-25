@@ -1,0 +1,12 @@
+// Smoke test of the emulator: at the entry point of the target, call lstrlenA("hello") in Fathom's emulator
+// (ExtraCmds emu.call), then run the target to its exit in it (emu.run).
+settingset Events, SystemBreakpoint, 0
+settingset Events, TlsCallbacks, 0
+settingset Events, EntryBreakpoint, 1
+init "%TARGET%"
+
+emu.call kernel32.lstrlenA, "str:hello"
+log "[emu] lstrlenA {d:$result}"
+emu.run
+log "[emu] exit {d:$result2}"
+log "[template] done"

@@ -20,10 +20,11 @@ Exported 2000 instructions (1 threads, 0 context switches) to C:\work\trace.log
 | `TraceExport` → JSON / CSV / Tenet / Frinet / `.ftt` (Time Travel) | ✅ | ✅ |
 | Time Travel: `tt.*` commands (seek, step back, find, memory at an instant) | ✅ | ✅ (commands; the tab needs the GUI) |
 | Trace recording about 2.5x faster, thread order of a trace (exact / approximate, `tt.info`, JSON `cpu`) | ✅ | ✅ |
+| Emulator: `emu.*` (a function, or the whole program with its threads, children, windows, network and 3D APIs, in dumpulator) | ✅ | ✅ (needs Python 3.9+) |
 | Plugins: pybridge, ExtraCmds, ScyllaHide, xAnalyzer | ✅ | ✅ (ExtraCmds x64 without the GUI tab) |
 | Script templates and launcher | ✅ | ✅ |
 | Qt GUI (`x64dbg.exe`, `x32dbg.exe`), minidump viewer | ✅ | — |
-| Download size | 72 MB | **15 MB** |
+| Download size | 76 MB | **17 MB** |
 
 ---
 
@@ -106,6 +107,7 @@ The launcher fills in `%TARGET%`, `%MODULE%`, `%OUT%` and `%BITS%`, runs `headle
 | `break-on-file` | conditional breakpoint on a file open, then log, stack save and minidump |
 | `antidebug` | hides the debugger (`hide`: patched PEB) and logs anti-debug probes |
 | `find-pattern` | searches a hex pattern (with wildcards) or an ASCII literal over the whole memory map |
+| `emulate-program` | runs the target to its exit in Fathom's emulator (`emu.run`, images of its windows) |
 | `emulate-dump` | emulates a `.dmp` with pybridge and serves it on 127.0.0.1:27041 |
 
 ### 4. Python (pybridge)
@@ -139,6 +141,8 @@ See [pybridge](https://github.com/EGKrb/pybridge) for the full Python API.
 
 ## Notes
 
+- **Emulator** (`emulator\`, used by the `emu.*` commands of ExtraCmds and by pybridge's `Debugger.emulator()`): Fathom's [dumpulator](https://github.com/mrexodia/dumpulator)-based emulator runs a function of the debuggee (`emu.call`) or its thread on (`emu.run`) from a minidump of its current state, the debuggee itself not moving. It needs Python 3.9 or later with its packages: `emu.setup` installs them, or `pip install -r emulator\requirements.txt`. See Fathom's [emulator documentation](https://github.com/EGKrb/Fathom/blob/main/emulator/README.md).
+
 - **ExtraCmds (x64)** is the commands-only build: `.init`, `.save`, `scylla_hide.*`, `hvkd*`, `wineye` and the Time Travel commands `tt.*` work; the HvKdFusion and Time Travel tabs of Fathom need the GUI.
 - **Antivirus:** debuggers write into the memory of the process they debug, which behaviour monitors can take for injection. During testing, Microsoft Defender reported `Behavior:Win32/SuspLummaInj.A` when the 32-bit engine debugged a 32-bit Windows binary (`C:\Windows\SysWOW64\whoami.exe`), killed the debuggee and quarantined `x32\headless.exe`. Debugging other programs (and 64-bit system binaries) was not affected. For malware analysis, work in a VM and add an exclusion for the package folder there.
 - Use it on programs you are allowed to analyse (your own software, malware samples in a sandbox, CTF challenges...).
@@ -161,7 +165,7 @@ Microsoft WinDbg (`hvkdfusion\windbg64`) is never copied into the package: it is
 
 ## Tests
 
-[`tests/smoke.ps1`](tests/smoke.ps1) runs [`tests/smoke.txt`](tests/smoke.txt) against [`tests/target.c`](tests/target.c): start, trace 2,000 instructions, export JSON, Tenet and `.ftt`, check the plugins. GitHub Actions builds the package from the latest Fathom release and runs it on x64 and x32 on every push.
+[`tests/smoke.ps1`](tests/smoke.ps1) runs [`tests/smoke.txt`](tests/smoke.txt) against [`tests/target.c`](tests/target.c): start, trace 2,000 instructions, export JSON, Tenet and `.ftt`, check the plugins; with `-Emulator`, [`tests/smoke-emu.txt`](tests/smoke-emu.txt) calls `lstrlenA` in the emulator and runs the target to its exit there. GitHub Actions builds the package from the latest Fathom release and runs it on x64 and x32 on every push (the emulator on x32: the x64 ExtraCmds of a Fathom release is its GUI build, left out of the package).
 
 ```powershell
 .\tests\smoke.ps1 -Package dist\fathom-headless -Target .\target64.exe -Arch x64

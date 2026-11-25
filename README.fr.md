@@ -20,10 +20,11 @@ Exported 2000 instructions (1 threads, 0 context switches) to C:\work\trace.log
 | `TraceExport` → JSON / CSV / Tenet / Frinet / `.ftt` (Time Travel) | ✅ | ✅ |
 | Time Travel : commandes `tt.*` (positionnement, retour arrière, recherche, mémoire à un instant) | ✅ | ✅ (commandes ; l'onglet demande l'interface) |
 | Enregistrement des traces environ 2,5 fois plus rapide, ordre des threads d'une trace (exact / approximatif, `tt.info`, membre JSON `cpu`) | ✅ | ✅ |
+| Émulateur : `emu.*` (une fonction, ou le programme entier avec ses threads, ses enfants, ses fenêtres, le réseau et les API 3D, dans dumpulator) | ✅ | ✅ (demande Python 3.9+) |
 | Plugins : pybridge, ExtraCmds, ScyllaHide, xAnalyzer | ✅ | ✅ (ExtraCmds x64 sans l'onglet graphique) |
 | Modèles de scripts et lanceur | ✅ | ✅ |
 | Interface Qt (`x64dbg.exe`, `x32dbg.exe`), visionneuse de minidumps | ✅ | — |
-| Taille du téléchargement | 72 Mo | **15 Mo** |
+| Taille du téléchargement | 76 Mo | **17 Mo** |
 
 ---
 
@@ -106,6 +107,7 @@ Le lanceur remplace `%TARGET%`, `%MODULE%`, `%OUT%` et `%BITS%`, lance `headless
 | `break-on-file` | breakpoint conditionnel sur une ouverture de fichier, puis log, sauvegarde de la pile et minidump |
 | `antidebug` | masque le débogueur (`hide` : PEB patché) et journalise les sondes anti-debug |
 | `find-pattern` | cherche un motif hexadécimal (avec jokers) ou un littéral ASCII sur toute la carte mémoire |
+| `emulate-program` | exécute la cible jusqu'à sa sortie dans l'émulateur de Fathom (`emu.run`, images de ses fenêtres) |
 | `emulate-dump` | émule un `.dmp` avec pybridge et le sert sur 127.0.0.1:27041 |
 
 ### 4. Python (pybridge)
@@ -139,6 +141,8 @@ Voir [pybridge](https://github.com/EGKrb/pybridge) pour toute l'API Python.
 
 ## Remarques
 
+- **Émulateur** (`emulator\`, utilisé par les commandes `emu.*` d'ExtraCmds et par `Debugger.emulator()` de pybridge) : l'émulateur de Fathom, basé sur [dumpulator](https://github.com/mrexodia/dumpulator), exécute une fonction du débogué (`emu.call`) ou fait avancer son thread (`emu.run`) à partir d'un minidump de son état courant, sans que le débogué lui-même ne bouge. Il demande Python 3.9 ou plus récent avec ses paquets : `emu.setup` les installe, ou `pip install -r emulator\requirements.txt`. Voir la [documentation de l'émulateur](https://github.com/EGKrb/Fathom/blob/main/emulator/README.md) de Fathom.
+
 - **ExtraCmds (x64)** est la version sans interface : `.init`, `.save`, `scylla_hide.*`, `hvkd*`, `wineye` et les commandes Time Travel `tt.*` fonctionnent ; les onglets HvKdFusion et Time Travel de Fathom demandent l'interface.
 - **Antivirus :** un débogueur écrit dans la mémoire du processus qu'il débogue, ce que la surveillance comportementale peut prendre pour une injection. Pendant les tests, Microsoft Defender a signalé `Behavior:Win32/SuspLummaInj.A` quand le moteur 32 bits déboguait un binaire Windows 32 bits (`C:\Windows\SysWOW64\whoami.exe`) : il a tué le processus débogué et mis `x32\headless.exe` en quarantaine. Le débogage d'autres programmes (et des binaires système 64 bits) n'a pas été affecté. Pour l'analyse de malware, travaillez dans une VM et ajoutez-y une exclusion pour le dossier du paquet.
 - À utiliser sur des programmes que vous êtes autorisé à analyser (vos logiciels, échantillons de malware en bac à sable, challenges CTF...).
@@ -161,7 +165,7 @@ WinDbg de Microsoft (`hvkdfusion\windbg64`) n'est jamais copié dans le paquet :
 
 ## Tests
 
-[`tests/smoke.ps1`](tests/smoke.ps1) exécute [`tests/smoke.txt`](tests/smoke.txt) sur [`tests/target.c`](tests/target.c) : démarrage, trace de 2 000 instructions, export JSON, Tenet et `.ftt`, vérification des plugins. GitHub Actions construit le paquet à partir de la dernière release de Fathom et le teste en x64 et x32 à chaque push.
+[`tests/smoke.ps1`](tests/smoke.ps1) exécute [`tests/smoke.txt`](tests/smoke.txt) sur [`tests/target.c`](tests/target.c) : démarrage, trace de 2 000 instructions, export JSON, Tenet et `.ftt`, vérification des plugins ; avec `-Emulator`, [`tests/smoke-emu.txt`](tests/smoke-emu.txt) appelle `lstrlenA` dans l'émulateur et y exécute la cible jusqu'à sa sortie. GitHub Actions construit le paquet à partir de la dernière release de Fathom et le teste en x64 et x32 à chaque push (l'émulateur en x32 : l'ExtraCmds x64 d'une release de Fathom est sa version graphique, laissée hors du paquet).
 
 ```powershell
 .\tests\smoke.ps1 -Package dist\fathom-headless -Target .\target64.exe -Arch x64

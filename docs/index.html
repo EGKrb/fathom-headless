@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Fathom headless — command-line debugger</title>
-<meta name="description" content="Fathom headless: headless.exe and the x64dbg-based Fathom debug engine for x64 and x32, without the GUI. Scripts, stdin, PowerShell templates, Python, TraceExport to JSON/CSV/Tenet/Frinet/.ftt, Time Travel commands.">
+<meta name="description" content="Fathom headless: headless.exe and the x64dbg-based Fathom debug engine for x64 and x32, without the GUI. Scripts, stdin, PowerShell templates, Python, TraceExport to JSON/CSV/Tenet/Frinet/.ftt, Time Travel commands, an emulator for functions and whole programs.">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%2315803d'/%3E%3Cpath d='M8 11l6 5-6 5' fill='none' stroke='white' stroke-width='2.6' stroke-linecap='round' stroke-linejoin='round'/%3E%3Cpath d='M16 22h8' stroke='white' stroke-width='2.6' stroke-linecap='round'/%3E%3C/svg%3E">
 <style>
 :root {
@@ -93,7 +93,7 @@ footer .wrap { display: flex; justify-content: space-between; gap: 16px; flex-wr
 <main>
   <div class="wrap hero">
     <h1>The Fathom debugger,<br>without the window.</h1>
-    <p class="lead"><code>headless.exe</code> and the full x64dbg-based engine of <a href="https://github.com/EGKrb/Fathom">Fathom</a> for x64 and x32 — no Qt GUI, 15 MB. Debug Windows programs from scripts, standard input, PowerShell templates or Python: on a server, in an analysis VM, in CI.</p>
+    <p class="lead"><code>headless.exe</code> and the full x64dbg-based engine of <a href="https://github.com/EGKrb/Fathom">Fathom</a> for x64 and x32 — no Qt GUI, 17 MB. Debug Windows programs from scripts, standard input, PowerShell templates or Python: on a server, in an analysis VM, in CI.</p>
     <div class="buttons">
       <a class="btn primary" href="https://github.com/EGKrb/fathom-headless/releases/latest">Download</a>
       <a class="btn" href="https://github.com/EGKrb/fathom-headless">View on GitHub</a>
@@ -118,7 +118,8 @@ Started trace recording to file: C:\work\trace.trace64
         <div class="card"><h3>x64 and x32 engine</h3><p><code>headless.exe</code>, <code>x64dbg.dll</code> / <code>x32dbg.dll</code>, TitanEngine, GleeBug — every x64dbg command, script and expression.</p></div>
         <div class="card"><h3>TraceExport</h3><p>Record execution traces and export them to <strong>JSON</strong>, <strong>CSV</strong>, or <strong>Tenet / Frinet</strong> to explore them in IDA Pro, or <strong>.ftt</strong> to walk them backward with the <code>tt.*</code> commands.</p></div>
         <div class="card"><h3>Plugins</h3><p>pybridge (Python), ExtraCmds, ScyllaHide, xAnalyzer, plus PE-sieve and the HvKdFusion / wineye scripts.</p></div>
-        <div class="card"><h3>Templates</h3><p>Twelve ready-made scripts — API logging, unpacking dumps, pattern search, traces — and a launcher with isolated settings.</p></div>
+        <div class="card"><h3>Emulator</h3><p><code>emu.call</code> and <code>emu.run</code> run a function or the whole program in Fathom's emulator (dumpulator): threads, child processes, windows, network, Direct3D and OpenGL — the debuggee does not move. Needs Python.</p></div>
+        <div class="card"><h3>Templates</h3><p>Thirteen ready-made scripts — API logging, unpacking dumps, pattern search, traces — and a launcher with isolated settings.</p></div>
       </div>
     </div>
   </section>
@@ -175,6 +176,7 @@ TraceExport "C:\work\trace.trace64", "C:\work\trace.ftt", ftt</pre>
             <tr><td><code>break-on-file</code></td><td>conditional breakpoint on a file open, then automatic actions</td></tr>
             <tr><td><code>antidebug</code></td><td>hide the debugger and log anti-debug probes</td></tr>
             <tr><td><code>find-pattern</code></td><td>search a hex or ASCII pattern over the whole memory map</td></tr>
+            <tr><td><code>emulate-program</code></td><td>run the target to its exit in Fathom's emulator (images of its windows)</td></tr>
             <tr><td><code>emulate-dump</code></td><td>emulate a <code>.dmp</code> and serve it to pybridge</td></tr>
           </tbody>
         </table>

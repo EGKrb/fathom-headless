@@ -39,6 +39,12 @@ jobs:
           arch: ${{ matrix.msvc }}
       - name: Build the smoke-test target
         run: cl /nologo /O1 /Fe:target.exe tests\target.c
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: The emulator's Python packages
+        shell: pwsh
+        run: python -m pip install -r dist\fathom-headless\emulator\requirements.txt
       - name: Smoke test
         shell: pwsh
-        run: .\tests\smoke.ps1 -Package dist\fathom-headless -Target .\target.exe -Arch ${{ matrix.arch }}
+        run: .\tests\smoke.ps1 -Package dist\fathom-headless -Target .\target.exe -Arch ${{ matrix.arch }} -Emulator
