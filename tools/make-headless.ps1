@@ -29,7 +29,10 @@ param(
 
     [string] $ExtraCmdsX64,
 
-    [string] $OutDir
+    [string] $OutDir,
+
+    # also ship rev.ng (revng.decompile): 500 MB unpacked, from Fathom_<version>_revng.zip
+    [switch] $IncludeRevng
 )
 
 $ErrorActionPreference = 'Stop'
@@ -87,13 +90,23 @@ foreach ($name in 'errordb.txt', 'exceptiondb.txt', 'mnemdb.json', 'ntstatusdb.t
     $file = Join-Path $Source $name
     if (Test-Path $file) { Copy-Item $file $stage }
 }
-foreach ($name in 'pybridge', 'hvkdfusion', 'emulator', 'tools', 'licenses') {
+# The analysis tools the commands of ExtraCmds run (Fathom 1.10+): angr / miasm scripts (angr.*, miasm.*),
+# NoVmp (novmp), remill (remill.lift), the Binary Ninja plugin (binja). rev.ng (revng.decompile, 500 MB) only with
+# -IncludeRevng, from the separate Fathom_<version>_revng.zip extracted into the release folder
+$folders = 'pybridge', 'hvkdfusion', 'emulator', 'analysis', 'novmp', 'remill', 'binja', 'tools', 'licenses'
+if ($IncludeRevng) {
+    if (-not (Test-Path (Join-Path $Source 'revng\bin\revng'))) { throw "-IncludeRevng: no revng\ in $Source (extract Fathom_<version>_revng.zip there)" }
+    $folders += 'revng'
+}
+foreach ($name in $folders) {
     $dir = Join-Path $Source $name
     if (Test-Path $dir) { Copy-Item -Recurse $dir $stage }
 }
-# The emulator of the emu.* commands (dumpulator, in Python): without its bytecode caches
-Get-ChildItem (Join-Path $stage 'emulator') -Recurse -Directory -Filter '__pycache__' -ErrorAction SilentlyContinue |
-    Remove-Item -Recurse -Force
+# The Python of the emulator and of the analysis scripts: without bytecode caches
+foreach ($name in 'emulator', 'analysis', 'binja') {
+    Get-ChildItem (Join-Path $stage $name) -Recurse -Directory -Filter '__pycache__' -ErrorAction SilentlyContinue |
+        Remove-Item -Recurse -Force
+}
 # WinDbg is Microsoft software that may not be redistributed: HvKdFusion installs it with `setup`
 $windbg = Join-Path $stage 'hvkdfusion\windbg64'
 if (Test-Path $windbg) {

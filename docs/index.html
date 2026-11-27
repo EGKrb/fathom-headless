@@ -93,7 +93,7 @@ footer .wrap { display: flex; justify-content: space-between; gap: 16px; flex-wr
 <main>
   <div class="wrap hero">
     <h1>The Fathom debugger,<br>without the window.</h1>
-    <p class="lead"><code>headless.exe</code> and the full x64dbg-based engine of <a href="https://github.com/EGKrb/Fathom">Fathom</a> for x64 and x32 — no Qt GUI, 17 MB. Debug Windows programs from scripts, standard input, PowerShell templates or Python: on a server, in an analysis VM, in CI.</p>
+    <p class="lead"><code>headless.exe</code> and the full x64dbg-based engine of <a href="https://github.com/EGKrb/Fathom">Fathom</a> for x64 and x32 — no Qt GUI, 60 MB with the analysis tools. Debug Windows programs from scripts, standard input, PowerShell templates or Python: on a server, in an analysis VM, in CI.</p>
     <div class="buttons">
       <a class="btn primary" href="https://github.com/EGKrb/fathom-headless/releases/latest">Download</a>
       <a class="btn" href="https://github.com/EGKrb/fathom-headless">View on GitHub</a>
@@ -117,7 +117,8 @@ Started trace recording to file: C:\work\trace.trace64
       <div class="grid">
         <div class="card"><h3>x64 and x32 engine</h3><p><code>headless.exe</code>, <code>x64dbg.dll</code> / <code>x32dbg.dll</code>, TitanEngine, GleeBug — every x64dbg command, script and expression.</p></div>
         <div class="card"><h3>TraceExport</h3><p>Record execution traces and export them to <strong>JSON</strong>, <strong>CSV</strong>, or <strong>Tenet / Frinet</strong> to explore them in IDA Pro, or <strong>.ftt</strong> to walk them backward with the <code>tt.*</code> commands.</p></div>
-        <div class="card"><h3>Plugins</h3><p>pybridge (Python), ExtraCmds, ScyllaHide, xAnalyzer, plus PE-sieve and the HvKdFusion / wineye scripts.</p></div>
+        <div class="card"><h3>Plugins</h3><p>pybridge (Python), ExtraCmds, Triton, Decompiler, ScyllaHide, xAnalyzer, plus PE-sieve and the HvKdFusion / wineye scripts.</p></div>
+        <div class="card"><h3>Analysis tools</h3><p>Triton, Ghidra's decompiler, <code>novmp</code> (NoVmp, VMProtect devirtualization, x64 and x86), <code>remill.lift</code> (LLVM IR), <code>angr.*</code> and <code>miasm.*</code> on the debuggee as it is in memory.</p></div>
         <div class="card"><h3>Emulator</h3><p><code>emu.call</code> and <code>emu.run</code> run a function or the whole program in Fathom's emulator (dumpulator): threads, child processes, windows, network, Direct3D and OpenGL — the debuggee does not move. Needs Python.</p></div>
         <div class="card"><h3>Templates</h3><p>Thirteen ready-made scripts — API logging, unpacking dumps, pattern search, traces — and a launcher with isolated settings.</p></div>
       </div>

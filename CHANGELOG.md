@@ -1,5 +1,23 @@
 # Changelog
 
+## [1.4.0] - 2026-11-27
+
+Built from [Fathom](https://github.com/EGKrb/Fathom) 1.11.0 (commit `21b031bb`).
+
+- **Analysis tools** (Fathom 1.10 and 1.11): the package ships `novmp\`
+  (NoVmp and NoVmp32 with vtildump: VMProtect 3.0 - 3.5 devirtualized to VTIL,
+  x64 and x86), `remill\` (remill-lift-17 and its semantics: `remill.lift`),
+  `analysis\` (angr and miasm: `angr.*`, `miasm.*`, Python 3.10+) and
+  `binja\` (the `binja` command, the Binary Ninja plugin); the Triton and
+  Decompiler (Ghidra) plugins are in `x64\plugins` and `x32\plugins`. Each tool
+  also has a repository of its own (fathom-novmp, fathom-remill,
+  fathom-analysis, fathom-binja).
+- rev.ng (`revng.decompile`, 500 MB) is left out; `make-headless.ps1
+  -IncludeRevng` adds it from `Fathom_<version>_revng.zip`.
+- Tests: `tests/smoke-tools.txt` (`smoke.ps1 -Tools`: NoVmp on the target,
+  remill on its entry point), run by the CI.
+- Download: 60 MB (the tools: NoVmp 68 MB and remill 27 MB unpacked).
+
 ## [1.3.0] - 2026-11-25
 
 Built from [Fathom](https://github.com/EGKrb/Fathom) 1.9.0 (commit `4965e46b`).

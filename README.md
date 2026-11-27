@@ -21,10 +21,11 @@ Exported 2000 instructions (1 threads, 0 context switches) to C:\work\trace.log
 | Time Travel: `tt.*` commands (seek, step back, find, memory at an instant) | ✅ | ✅ (commands; the tab needs the GUI) |
 | Trace recording about 2.5x faster, thread order of a trace (exact / approximate, `tt.info`, JSON `cpu`) | ✅ | ✅ |
 | Emulator: `emu.*` (a function, or the whole program with its threads, children, windows, network and 3D APIs, in dumpulator) | ✅ | ✅ (needs Python 3.9+) |
-| Plugins: pybridge, ExtraCmds, ScyllaHide, xAnalyzer | ✅ | ✅ (ExtraCmds x64 without the GUI tab) |
+| Analysis tools: Triton, Ghidra's decompiler, NoVmp (`novmp`, x64 and x86), remill (`remill.lift`), angr / miasm (`angr.*`, `miasm.*`), `binja` | ✅ | ✅ (angr / miasm need Python 3.10+; rev.ng with `-IncludeRevng`) |
+| Plugins: pybridge, ExtraCmds, Triton, Decompiler, ScyllaHide, xAnalyzer | ✅ | ✅ (ExtraCmds x64 without the GUI tab) |
 | Script templates and launcher | ✅ | ✅ |
 | Qt GUI (`x64dbg.exe`, `x32dbg.exe`), minidump viewer | ✅ | — |
-| Download size | 76 MB | **17 MB** |
+| Download size | 121 MB | **60 MB** |
 
 ---
 
@@ -41,6 +42,8 @@ fathom-headless\
   run-headless.ps1      runs a template against a target
   pybridge\             Python client and examples (pybridge plugin)
   hvkdfusion\  tools\   HvKdFusion / wineye scripts, PE-sieve
+  novmp\  remill\       NoVmp / NoVmp32 + vtildump (novmp), remill-lift-17 + semantics (remill.lift)
+  analysis\  binja\     angr / miasm scripts (angr.*, miasm.*), the Binary Ninja plugin
   licenses\             licenses of x64dbg and of the bundled components
 ```
 
@@ -143,6 +146,7 @@ See [pybridge](https://github.com/EGKrb/pybridge) for the full Python API.
 
 - **Emulator** (`emulator\`, used by the `emu.*` commands of ExtraCmds and by pybridge's `Debugger.emulator()`): Fathom's [dumpulator](https://github.com/mrexodia/dumpulator)-based emulator runs a function of the debuggee (`emu.call`) or its thread on (`emu.run`) from a minidump of its current state, the debuggee itself not moving. It needs Python 3.9 or later with its packages: `emu.setup` installs them, or `pip install -r emulator\requirements.txt`. See Fathom's [emulator documentation](https://github.com/EGKrb/Fathom/blob/main/emulator/README.md).
 
+- **Analysis tools** (Fathom 1.10+, run by the commands of ExtraCmds on the debuggee as it is in memory): `novmp` gives the module to NoVmp (x64) or NoVmp32 (x86), which devirtualizes VMProtect 3.0 – 3.5 to VTIL and reports 3.6 – 3.11 VM entries; `remill.lift` lifts code to LLVM IR; `angr.*` and `miasm.*` run angr and miasm on a minidump of the debuggee (`analysis.setup` installs their packages, Python 3.10+); `binja` opens the module in Binary Ninja. Triton and Ghidra's decompiler are plugins (`x64\plugins`, `x32\plugins`). rev.ng (`revng.decompile`, 500 MB) is not in the package: extract `Fathom_<version>_revng.zip` of the Fathom release next to `x64\`. Each tool also has a repository of its own: [fathom-novmp](https://github.com/EGKrb/fathom-novmp), [fathom-remill](https://github.com/EGKrb/fathom-remill), [fathom-analysis](https://github.com/EGKrb/fathom-analysis), [fathom-binja](https://github.com/EGKrb/fathom-binja).
 - **ExtraCmds (x64)** is the commands-only build: `.init`, `.save`, `scylla_hide.*`, `hvkd*`, `wineye` and the Time Travel commands `tt.*` work; the HvKdFusion and Time Travel tabs of Fathom need the GUI.
 - **Antivirus:** debuggers write into the memory of the process they debug, which behaviour monitors can take for injection. During testing, Microsoft Defender reported `Behavior:Win32/SuspLummaInj.A` when the 32-bit engine debugged a 32-bit Windows binary (`C:\Windows\SysWOW64\whoami.exe`), killed the debuggee and quarantined `x32\headless.exe`. Debugging other programs (and 64-bit system binaries) was not affected. For malware analysis, work in a VM and add an exclusion for the package folder there.
 - Use it on programs you are allowed to analyse (your own software, malware samples in a sandbox, CTF challenges...).
@@ -165,7 +169,7 @@ Microsoft WinDbg (`hvkdfusion\windbg64`) is never copied into the package: it is
 
 ## Tests
 
-[`tests/smoke.ps1`](tests/smoke.ps1) runs [`tests/smoke.txt`](tests/smoke.txt) against [`tests/target.c`](tests/target.c): start, trace 2,000 instructions, export JSON, Tenet and `.ftt`, check the plugins; with `-Emulator`, [`tests/smoke-emu.txt`](tests/smoke-emu.txt) calls `lstrlenA` in the emulator and runs the target to its exit there. GitHub Actions builds the package from the latest Fathom release and runs it on x64 and x32 on every push (the emulator on x32: the x64 ExtraCmds of a Fathom release is its GUI build, left out of the package).
+[`tests/smoke.ps1`](tests/smoke.ps1) runs [`tests/smoke.txt`](tests/smoke.txt) against [`tests/target.c`](tests/target.c): start, trace 2,000 instructions, export JSON, Tenet and `.ftt`, check the plugins; with `-Emulator`, [`tests/smoke-emu.txt`](tests/smoke-emu.txt) calls `lstrlenA` in the emulator and runs the target to its exit there; with `-Tools`, [`tests/smoke-tools.txt`](tests/smoke-tools.txt) runs NoVmp on the target's module and lifts its entry point with remill. GitHub Actions builds the package from the latest Fathom release and runs it on x64 and x32 on every push (the emulator and the tools on x32: the x64 ExtraCmds of a Fathom release is its GUI build, left out of the package).
 
 ```powershell
 .\tests\smoke.ps1 -Package dist\fathom-headless -Target .\target64.exe -Arch x64

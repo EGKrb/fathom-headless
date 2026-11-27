@@ -1,0 +1,13 @@
+// Smoke test of the analysis tools of the package: NoVmp (novmp) on the target's module read from memory (an
+// unprotected program: no virtual machine, 0 routines) and remill (remill.lift) on the code at the entry point,
+// read from memory and lifted to LLVM IR.
+settingset Events, SystemBreakpoint, 0
+settingset Events, TlsCallbacks, 0
+settingset Events, EntryBreakpoint, 1
+init "%TARGET%"
+
+novmp %MODULE%
+log "[tools] novmp {d:$result}"
+remill.lift cip, 0x20
+log "[tools] remill {d:$result}"
+log "[template] done"
