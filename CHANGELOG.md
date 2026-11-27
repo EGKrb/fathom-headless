@@ -1,5 +1,17 @@
 # Changelog
 
+## [1.4.1] - 2026-11-27
+
+Built from [Fathom](https://github.com/EGKrb/Fathom) 1.11.1 (commit `1dd09ec4`).
+
+- **TitanEngine fix**: the debug loop kept the continue code of the previous
+  event; after an exception deferred with `DBG_REPLY_LATER`, the next thread
+  creation was replied the same and Windows delivered it again and again, so
+  `TraceSetThreads all` could hang (x32). Every event now starts with
+  `DBG_CONTINUE`.
+- NoVmp reports a VMProtect 3.6 - 3.11 VM entry clearly instead of asserting
+  (it devirtualizes VMProtect 3.0 - 3.5); `NOVMP_DEBUG_VMENTER=1` dumps it.
+
 ## [1.4.0] - 2026-11-27
 
 Built from [Fathom](https://github.com/EGKrb/Fathom) 1.11.0 (commit `21b031bb`).
